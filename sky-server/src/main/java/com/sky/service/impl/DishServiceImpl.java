@@ -115,12 +115,25 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByDishId(id);
 
         List<DishFlavor> dishFlavors = dishDTO.getFlavors();
-        if (dishFlavors != null && dishFlavors.size() > 0) {
+        if (dishFlavors != null && !dishFlavors.isEmpty()) {
             dishFlavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(id);
             });
             // 批量插入
             dishFlavorMapper.insertBatch(dishFlavors);
         }
+    }
+
+    @Override
+    public List<Dish> list(Long categoryId) {
+        Dish dish = Dish.builder().categoryId(categoryId).status(StatusConstant.ENABLE).build();
+
+        return dishMapper.getDishesByCategoryId(dish);
+    }
+
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Dish dish = Dish.builder().status(status).id(id).build();
+        dishMapper.update(dish);
     }
 }
