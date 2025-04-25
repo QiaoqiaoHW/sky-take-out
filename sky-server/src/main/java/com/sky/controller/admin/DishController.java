@@ -10,9 +10,11 @@ import com.sky.vo.DishVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/dish")
@@ -22,12 +24,19 @@ public class DishController {
 
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
     @PostMapping
     public Result save(@RequestBody DishDTO dishDTO){
         log.info("新增菜品：{}", dishDTO);
 
         dishService.saveWithFlavor(dishDTO);
+
+        // 清除缓存
+        Long categoryId = dishDTO.getCategoryId();
+        String key = "dish_" + categoryId;
+        cleanCache(key);
 
         return Result.success();
     }
@@ -47,6 +56,8 @@ public class DishController {
 
         dishService.deleteBatch(ids);
 
+        cleanCache("dish_*");
+
         return Result.success();
     }
 
@@ -64,6 +75,8 @@ public class DishController {
         log.info("修改菜品：{}", dishDTO);
 
         dishService.updateWithFlavor(dishDTO);
+
+        cleanCache("dish_*");
 
         return Result.success();
     }
@@ -83,7 +96,14 @@ public class DishController {
 
         dishService.updateStatus(status, id);
 
+        cleanCache("dish_*");
+
         return Result.success();
     }
 
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        // 清除缓存
+        redisTemplate.delete(keys);
+    }
 }
