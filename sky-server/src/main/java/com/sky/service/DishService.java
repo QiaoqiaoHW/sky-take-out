@@ -6,6 +6,7 @@ import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

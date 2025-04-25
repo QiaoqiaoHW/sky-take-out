@@ -31,7 +31,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping
-    @CacheEvict(value = "setmealCache", key = "#setmealDTO.categoryId")
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result save(@RequestBody SetmealDTO setmealDTO) {
         log.info("新增套餐：{}", setmealDTO);
         setmealService.saveWithDish(setmealDTO);
